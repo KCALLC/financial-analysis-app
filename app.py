@@ -56,41 +56,36 @@ def main():
         df = process_file(uploaded_file)
         st.write("### Processed Financial Data", df)
         
-        balance_sheet_df = df[df["Account Category"].isin(["Cash", "Accounts Receivable", "Prepaid Expenses", "Other Current Assets", "Fixed Assets", "Accounts Payable", "Accrued Liabilities", "Comp Absences", "Intercompany Payables", "Deferred/Unearned Revenue", "Current Loans", "Other Liabilities", "Fund Balance"])].groupby("Account Category")["Calculated Amount"].sum()
+        balance_sheet_df = df[df["Account Category"].isin(["Cash", "Accounts Receivable", "Prepaid Expenses", "Other Current Assets", "Fixed Assets", "Accounts Payable", "Accrued Liabilities", "Comp Absences", "Intercompany Payables", "Deferred/Unearned Revenue", "Current Loans", "Other Liabilities", "Fund Balance"])].groupby("Account Category")["Calculated Amount"].sum().reset_index()
         
-        fund_balance = balance_sheet_df.get("Fund Balance", 0)
-        total_assets = sum(balance_sheet_df.get(cat, 0) for cat in ["Cash", "Accounts Receivable", "Prepaid Expenses", "Other Current Assets", "Fixed Assets"])
-        total_liabilities = sum(balance_sheet_df.get(cat, 0) for cat in ["Accounts Payable", "Accrued Liabilities", "Comp Absences", "Intercompany Payables", "Deferred/Unearned Revenue", "Current Loans", "Other Liabilities"])
+        total_assets = balance_sheet_df[balance_sheet_df["Account Category"].isin(["Cash", "Accounts Receivable", "Prepaid Expenses", "Other Current Assets", "Fixed Assets"])]
+        total_liabilities = balance_sheet_df[balance_sheet_df["Account Category"].isin(["Accounts Payable", "Accrued Liabilities", "Comp Absences", "Intercompany Payables", "Deferred/Unearned Revenue", "Current Loans", "Other Liabilities"])]
+        fund_balance = balance_sheet_df[balance_sheet_df["Account Category"] == "Fund Balance"]
         
         st.write("## Balance Sheet (Statement of Net Position)")
+        st.dataframe(balance_sheet_df.style.format({"Calculated Amount": "${:,.0f}"}))
         
-        st.write("### Assets")
-        for cat in ["Cash", "Accounts Receivable", "Prepaid Expenses", "Other Current Assets", "Fixed Assets"]:
-            st.write(f"{cat}: ${balance_sheet_df.get(cat, 0):,.0f}")
-        st.write("**Total Assets: ${:,.0f}**".format(total_assets))
+        st.write("**Total Assets: ${:,.0f}**".format(total_assets["Calculated Amount"].sum()))
+        st.write("**Total Liabilities: ${:,.0f}**".format(total_liabilities["Calculated Amount"].sum()))
+        st.write("**Ending Fund Balance: ${:,.0f}**".format(fund_balance["Calculated Amount"].sum()))
+        st.write("**Liabilities + Fund Balance: ${:,.0f}**".format(total_liabilities["Calculated Amount"].sum() + fund_balance["Calculated Amount"].sum()))
         
-        st.write("### Liabilities")
-        for cat in ["Accounts Payable", "Accrued Liabilities", "Comp Absences", "Intercompany Payables", "Deferred/Unearned Revenue", "Current Loans", "Other Liabilities"]:
-            st.write(f"{cat}: ${balance_sheet_df.get(cat, 0):,.0f}")
-        st.write("**Total Liabilities: ${:,.0f}**".format(total_liabilities))
-        
-        st.write("### Fund Balance")
-        st.write("**Ending Fund Balance: ${:,.0f}**".format(fund_balance))
-        
-        st.write("### Liabilities + Fund Balance (Should Equal Assets)")
-        st.write("**${:,.0f}**".format(total_liabilities + fund_balance))
+        income_statement_df = df[df["Account Category"].isin(["Revenue", "Expenditure"])].groupby("Account Category")["Calculated Amount"].sum().reset_index()
         
         st.write("## Income Statement")
-        income_statement_df = df[df["Account Category"].isin(["Revenue", "Expenditure"])].groupby("Account Category")["Calculated Amount"].sum()
+        st.dataframe(income_statement_df.style.format({"Calculated Amount": "${:,.0f}"}))
         
-        st.write("### Revenue vs. Expenditure")
-        fig, ax = plt.subplots()
-        income_statement_df.plot(kind='bar', ax=ax)
-        plt.ylabel("Amount ($)")
-        plt.title("Revenue vs. Expenditure")
-        plt.grid(axis="y")
-        ax.tick_params(axis='x', rotation=45)
-        st.pyplot(fig)
+        if not income_statement_df.empty:
+            st.write("## Revenue vs. Expenditure")
+            fig, ax = plt.subplots()
+            income_statement_df.plot(kind='bar', x="Account Category", y="Calculated Amount", ax=ax, legend=False)
+            plt.ylabel("Amount ($)")
+            plt.title("Revenue vs. Expenditure")
+            plt.grid(axis="y")
+            ax.tick_params(axis='x', rotation=45)
+            st.pyplot(fig)
+        else:
+            st.warning("No income statement data available to plot.")
 
 if __name__ == "__main__":
     main()
