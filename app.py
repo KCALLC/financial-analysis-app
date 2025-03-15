@@ -27,9 +27,9 @@ def categorize_objt(objt):
             return "Deferred/Unearned Revenue"
         elif objt == 9640:
             return "Current Loans"
-        elif objt == 1000 <= objt <7999:
+        elif 1000 <= objt <=7999:
             return "Expenditures"
-        elif objt == 8000 <= objt <8999:
+        elif 8000 <= objt <=8999:
             return "Revenues"
         elif 9500 <= objt <= 9699:
             return "Other Liabilities"
