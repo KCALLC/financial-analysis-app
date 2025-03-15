@@ -6,9 +6,9 @@ def categorize_objt(objt):
     try:
         objt = int(objt)
         if 1000 <= objt <= 7999:
-            return "Expenditures"
+            return "Expenditure"
         elif 8000 <= objt <= 8999:
-            return "Revenues"
+            return "Revenue"
         elif 9000 <= objt <= 9199:
             return "Cash"
         elif 9200 <= objt <= 9299:
