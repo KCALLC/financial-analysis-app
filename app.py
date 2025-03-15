@@ -5,7 +5,11 @@ import matplotlib.pyplot as plt
 def categorize_objt(objt):
     try:
         objt = int(objt)
-        if 9000 <= objt <= 9199:
+        if 1000 <= objt <= 7999:
+            return "Expenditures"
+        elif 8000 <= objt <= 8999:
+            return "Revenues"
+        elif 9000 <= objt <= 9199:
             return "Cash"
         elif 9200 <= objt <= 9299:
             return "Accounts Receivable"
@@ -27,10 +31,6 @@ def categorize_objt(objt):
             return "Deferred/Unearned Revenue"
         elif objt == 9640:
             return "Current Loans"
-        elif 1000 <= objt <=7999:
-            return "Expenditures"
-        elif 8000 <= objt <=8999:
-            return "Revenues"
         elif 9500 <= objt <= 9699:
             return "Other Liabilities"
         elif 9700 <= objt <= 9799:
